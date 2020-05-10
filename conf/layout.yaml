@@ -67,9 +67,9 @@
   - type: corner
     image: 'pic/corner_north_west.png'
     locations:
-    - direction: north
-      connected: False
     - direction: west
+      connected: False
+    - direction: north
       connected: True
 #3rd row
 - - type: three
@@ -157,9 +157,9 @@
 - - type: corner
     image: 'pic/corner_south_west.png'
     locations:
-    - direction: west
-      connected: False
     - direction: south
+      connected: False
+    - direction: west
       connected: False
   - type: three
     image: 'pic/three_south_west_east.png'
@@ -180,9 +180,9 @@
   - type: corner
     image: 'pic/corner_north_west.png'
     locations:
-    - direction: north
-      connected: True
     - direction: west
+      connected: True
+    - direction: north
       connected: True
   - type: half
     image: 'pic/half_south.png'
