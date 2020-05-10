@@ -1,0 +1,191 @@
+---
+#1st row
+- - type: corner
+    image: 'pic/corner_north_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: east
+      connected: False
+  - type: three
+    image: 'pic/three_north_south_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: east
+      connected: False
+    - direction: south
+      connected: False
+  - type: corner
+    image: 'pic/corner_north_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: east
+      connected: False
+  - type: empty
+    image: 'pic/empty.png'
+    locations:
+    - direction: north
+      connected: True
+  - type: half
+    image: 'pic/half_north.png'
+    locations:
+    - direction: north
+      connected: False
+#2nd row
+- - type: straight
+    image: 'pic/straight_west_east.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: east
+      connected: False
+  - type: half
+    image: 'pic/half_east.png'
+    locations:
+    - direction: east
+      connected: False
+  - type: three
+    image: 'pic/three_north_south_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: east
+      connected: True
+    - direction: south
+      connected: False
+  - type: three
+    image: 'pic/three_north_west_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: west
+      connected: True
+    - direction: east
+      connected: True
+  - type: corner
+    image: 'pic/corner_north_west.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: west
+      connected: True
+#3rd row
+- - type: three
+    image: 'pic/three_north_west_east.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: east
+      connected: False
+    - direction: north
+      connected: False
+  - type: three
+    image: 'pic/three_north_west_east.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: east
+      connected: False
+    - direction: north
+      connected: False
+  - type: corner
+    image: 'pic/corner_south_east.png'
+    locations:
+    - direction: east
+      connected: False
+    - direction: south
+      connected: False
+  - type: straight
+    image: 'pic/straight_north_south.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: south
+      connected: True
+  - type: half
+    image: 'pic/half_east.png'
+    locations:
+    - direction: east
+      connected: False
+#4th row
+- - type: straight
+    image: 'pic/straight_west_east.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: east
+      connected: True
+  - type: three
+    image: 'pic/three_south_west_east.png'
+    locations:
+    - direction: west
+      connected: True
+    - direction: east
+      connected: True
+    - direction: south
+      connected: False
+  - type: straight
+    image: 'pic/straight_west_east.png'
+    locations:
+    - direction: west
+      connected: True
+    - direction: east
+      connected: True
+  - type: intersection
+    image: 'pic/intersection.png'
+    locations:
+    - direction: north
+      connected: True
+    - direction: south
+      connected: True
+    - direction: west
+      connected: True
+    - direction: east
+      connected: False
+  - type: three
+    image: 'pic/three_north_south_west.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: north
+      connected: False
+    - direction: south
+      connected: False
+#5th row
+- - type: corner
+    image: 'pic/corner_south_west.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: south
+      connected: False
+  - type: three
+    image: 'pic/three_south_west_east.png'
+    locations:
+    - direction: west
+      connected: False
+    - direction: east
+      connected: False
+    - direction: south
+      connected: False
+  - type: straight
+    image: 'pic/straight_west_east.png'
+    locations:
+    - direction: north
+      connected: False
+    - direction: east
+      connected: False
+  - type: corner
+    image: 'pic/corner_north_west.png'
+    locations:
+    - direction: north
+      connected: True
+    - direction: west
+      connected: True
+  - type: half
+    image: 'pic/half_south.png'
+    locations:
+    - direction: south
+      connected: False
