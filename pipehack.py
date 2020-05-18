@@ -1,19 +1,31 @@
 import sys
 import yaml
-from PyQt5.QtWidgets import QApplication, QWidget, QAbstractButton
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QGridLayout
 
 def load_layout():
     with open('conf/layout.yaml') as layout:
         layout_list = yaml.safe_load(layout)
         return layout_list
 
+
 class PipeWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self.setWindowTitle("Интерфейс взлома")
         self.button_start_layout_list = load_layout()
         self.button_layout_list = self.button_start_layout_list
-        
+        self.win_message = '''
+        Предварительная договоренность, достигнутая в результате переговоров между дипломатическим представителем 
+        Королевства Латверия Кристиной Лис и м-ром Оливером Гилмором [засекречено].
+
+        Если в результате переговоров между дипломатическим корпусом Королевства Латверия и 
+        представителем повстанческой группировки «Солнцестояние» не будет достигнуто мирное решение,
+        Королевство Латверия в лице официального ведомства по военным конфликтам обязуется заключить 
+        м-ром Оливером Гилмором, гражданином Великобритании, либо указанной им организацией, договор 
+        на поставку огнестрельного, химического, газового и/или иного согласованного сторонами оружия 
+        для ведения боевых действий.
+        '''
+        self.initUI()
     def image_picker(self, button_type: str, directions: list) -> str:
         if button_type == 'half':
             if 'north' in directions:
@@ -172,13 +184,60 @@ class PipeWindow(QWidget):
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
                 pic = self.image_picker(button_type='straight', directions=['east', 'west'])
-            elif button_dict['locations'][0]['direction'] == 'east' and button_dict['locations'][1]['direction'] == 'south':
-                self.button_layout_list[row][col]['locations'][0]['direction'] = 'south'
-                self.button_layout_list[row][col]['locations'][1]['direction'] = 'west'
-                pic = self.image_picker(button_type='corner', directions=['west', 'south'])
+            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east':
+                self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
+                self.button_layout_list[row][col]['locations'][1]['direction'] = 'south'
+                pic = self.image_picker(button_type='corner', directions=['north', 'south'])
+        elif button_dict['type'] == 'three':
+            if button_dict['locations'][0]['direction'] == 'north' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'south':
+                self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
+                self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
+                self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
+                pic = self.image_picker(button_type='corner', directions=['west', 'east', 'south'])
+            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'south':
+                self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
+                self.button_layout_list[row][col]['locations'][1]['direction'] = 'north'
+                self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
+                pic = self.image_picker(button_type='corner', directions=['north', 'west', 'south'])
+            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'north' and button_dict['locations'][2]['direction'] == 'south':
+                self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
+                self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
+                self.button_layout_list[row][col]['locations'][2]['direction'] = 'north'
+                pic = self.image_picker(button_type='corner', directions=['north', 'west', 'east'])
+            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'north':
+                self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
+                self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
+                self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
+                pic = self.image_picker(button_type='corner', directions=['north', 'south', 'east'])
+            elif button_dict['type'] == 'intersection':
+                pic = self.image_picker(button_type='intersection', directions=[])
+            elif button_dict['type'] == 'empty':
+                pic = self.image_picker(button_type='empty', directions=[])
         self.button_layout_list[row][col]['image'] = pic
-                
+
+    def click_button(self, row: int, col: int) -> None:
+        self.rotate_button(row=row, col=col)
+        self.set_connections()
+        solved_bool = self.is_solved()
+        if solved_bool:
+            msg = QMessageBox()
+            msg.setWindowTitle("Взлом успешен!")
+            msg.setText(self.win_message)
+            msg.exec_()
     def initUI(self):
         grid = QGridLayout()
         self.setLayout(grid)
+        positions = [(r, c) for r in range(len(self.button_layout_list)) for c in range(len(self.button_layout_list[0]))]
+        for position in positions:
+            button = QPushButton(self)
+            #button.setGeometry(64, 64)
+            button.clicked.connect(self.click_button(row=position[0], col=position[1]))
+            button.setStyleSheet(f'background-image : url({self.button_layout_list[position[0]][position[1]]["image"]})')
+            grid.addWidget(button, *position)
         
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = PipeWindow()
+    window.show()
+    sys.exit(app.exec_())
