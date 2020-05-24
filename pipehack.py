@@ -1,17 +1,14 @@
-import sys
+import PySimpleGUI as sg
 import yaml
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QGridLayout
 
-def load_layout():
+def load_layout() -> list:
     with open('conf/layout.yaml') as layout:
         layout_list = yaml.safe_load(layout)
         return layout_list
 
 
-class PipeWindow(QWidget):
+class PipeWindow():
     def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Интерфейс взлома")
         self.button_start_layout_list = load_layout()
         self.button_layout_list = self.button_start_layout_list
         self.win_message = '''
@@ -25,7 +22,26 @@ class PipeWindow(QWidget):
         на поставку огнестрельного, химического, газового и/или иного согласованного сторонами оружия 
         для ведения боевых действий.
         '''
-        self.initUI()
+        
+
+    def generate_sg_layout(self) -> list:
+        layout_list = []
+        for row in range(len(self.button_layout_list)):
+            col_list = []
+            for col in range(len(self.button_layout_list[0])):
+                generic_button = sg.Button(
+                button_text=f'{row}:{col}',
+                button_color=sg.TRANSPARENT_BUTTON,
+                image_filename=self.button_layout_list[row][col]['image'],
+                image_size=(64, 64),
+                size=(64, 64), 
+                border_width=0,
+                font=("Helvetica", 1)
+                )
+                col_list.insert(col, generic_button)
+            layout_list.insert(row, col_list)
+        return layout_list
+
     def image_picker(self, button_type: str, directions: list) -> str:
         if button_type == 'half':
             if 'north' in directions:
@@ -96,9 +112,9 @@ class PipeWindow(QWidget):
             for col_index, col_dict in enumerate(row_list):
                 neighbours_list = self.get_neighbours_list(row=row_index, col=col_index)
                 current_button_directions_list = []
-                for direction_list in col_dict['locations']:
-                    for direction_dict in direction_list:
-                        current_button_directions_list.append(direction_dict['direction'])
+                for direction_dict in col_dict['locations']:
+                    direction = direction_dict['direction']
+                    current_button_directions_list.append(direction)
                 for neighbour_coords_tuple in neighbours_list:
                     neighbour_button_directions_list = []
                     neighbour_row = neighbour_coords_tuple[0]
@@ -136,7 +152,7 @@ class PipeWindow(QWidget):
                                 for direction_index, direction_dict in enumerate(self.button_layout_list[row_index][col_index]['locations']):
                                     if direction_dict['direction'] == 'west':
                                         self.button_layout_list[row_index][col_index]['locations'][direction_index]['connected'] = False
-                        elif neighbour_position > col_index:
+                        elif neighbour_col > col_index:
                             #right
                             if 'east' in current_button_directions_list and 'west' in neighbour_button_directions_list:
                                 for direction_index, direction_dict in enumerate(self.button_layout_list[row_index][col_index]['locations']):
@@ -149,95 +165,96 @@ class PipeWindow(QWidget):
     
     def rotate_button(self, row: int, col: int) -> None:
         button_dict = self.button_layout_list[row][col]
-        if button_dict['type'] == 'half':
-            if button_dict['locations'][0]['direction'] == 'north':
+        if self.button_layout_list[row][col]['type'] == 'half':
+            if self.button_layout_list[row][col]['locations'][0]['direction'] == 'north':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'east'
-                pic = self.image_picker(button_type='half', directions=['east'])
-            elif button_dict['locations'][0]['direction'] == 'east':
+                pic = 'pic/half_east.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'east':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'south'
-                pic = self.image_picker(button_type='half', directions=['south'])
-            elif button_dict['locations'][0]['direction'] == 'south':
+                pic = 'pic/half_south.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
-                pic = self.image_picker(button_type='half', directions=['west'])
-            elif button_dict['locations'][0]['direction'] == 'west':
+                pic = 'pic/half_west.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
-                pic = self.image_picker(button_type='half', directions=['north'])
-        elif button_dict['type'] == 'corner':
-            if button_dict['locations'][0]['direction'] == 'north' and button_dict['locations'][1]['direction'] == 'east':
+                pic = 'pic/half_north.png'
+        elif self.button_layout_list[row][col]['type'] == 'corner':
+            if self.button_layout_list[row][col]['locations'][0]['direction'] == 'north' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'east':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'east'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'south'
-                pic = self.image_picker(button_type='corner', directions=['east', 'south'])
-            elif button_dict['locations'][0]['direction'] == 'east' and button_dict['locations'][1]['direction'] == 'south':
+                pic = 'pic/corner_south_east.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'east' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'south'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'west'
-                pic = self.image_picker(button_type='corner', directions=['west', 'south'])
-            elif button_dict['locations'][0]['direction'] == 'south' and button_dict['locations'][1]['direction'] == 'west':
+                pic = 'pic/corner_south_west.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'south' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'west':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'north'
-                pic = self.image_picker(button_type='corner', directions=['west', 'north'])
-            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'north':
+                pic = 'pic/corner_north_west.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'north':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
-                pic = self.image_picker(button_type='corner', directions=['north', 'east'])
-        elif button_dict['type'] == 'straight':
-            if button_dict['locations'][0]['direction'] == 'north' and button_dict['locations'][1]['direction'] == 'south':
+                pic = 'pic/corner_north_east.png'
+        elif self.button_layout_list[row][col]['type'] == 'straight':
+            if self.button_layout_list[row][col]['locations'][0]['direction'] == 'north' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
-                pic = self.image_picker(button_type='straight', directions=['east', 'west'])
-            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east':
+                pic = 'pic/straight_west_east.png' 
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'east':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'south'
-                pic = self.image_picker(button_type='corner', directions=['north', 'south'])
-        elif button_dict['type'] == 'three':
-            if button_dict['locations'][0]['direction'] == 'north' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'south':
+                pic ='pic/straight_north_south.png'
+        elif self.button_layout_list[row][col]['type'] == 'three':
+            if self.button_layout_list[row][col]['locations'][0]['direction'] == 'north' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'east' and self.button_layout_list[row][col]['locations'][2]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
                 self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
-                pic = self.image_picker(button_type='corner', directions=['west', 'east', 'south'])
-            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'south':
+                pic = 'pic/three_south_west_east.png' 
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'east' and self.button_layout_list[row][col]['locations'][2]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'north'
                 self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
-                pic = self.image_picker(button_type='corner', directions=['north', 'west', 'south'])
-            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'north' and button_dict['locations'][2]['direction'] == 'south':
+                pic = 'pic/three_north_south_west.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'north' and self.button_layout_list[row][col]['locations'][2]['direction'] == 'south':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'west'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
                 self.button_layout_list[row][col]['locations'][2]['direction'] = 'north'
-                pic = self.image_picker(button_type='corner', directions=['north', 'west', 'east'])
-            elif button_dict['locations'][0]['direction'] == 'west' and button_dict['locations'][1]['direction'] == 'east' and button_dict['locations'][2]['direction'] == 'north':
+                pic = 'pic/three_north_west_east.png'
+            elif self.button_layout_list[row][col]['locations'][0]['direction'] == 'west' and self.button_layout_list[row][col]['locations'][1]['direction'] == 'east' and self.button_layout_list[row][col]['locations'][2]['direction'] == 'north':
                 self.button_layout_list[row][col]['locations'][0]['direction'] = 'north'
                 self.button_layout_list[row][col]['locations'][1]['direction'] = 'east'
                 self.button_layout_list[row][col]['locations'][2]['direction'] = 'south'
-                pic = self.image_picker(button_type='corner', directions=['north', 'south', 'east'])
-            elif button_dict['type'] == 'intersection':
-                pic = self.image_picker(button_type='intersection', directions=[])
-            elif button_dict['type'] == 'empty':
-                pic = self.image_picker(button_type='empty', directions=[])
+                pic = 'pic/three_north_south_east.png'
+        elif self.button_layout_list[row][col]['type'] == 'intersection':
+                pic = 'pic/intersection.png'
+        elif self.button_layout_list[row][col]['type'] == 'empty':
+                pic = 'pic/empty.png'
         self.button_layout_list[row][col]['image'] = pic
-
-    def click_button(self, row: int, col: int) -> None:
+    
+    def click_button(self, row: int, col: int):
         self.rotate_button(row=row, col=col)
         self.set_connections()
         solved_bool = self.is_solved()
         if solved_bool:
-            msg = QMessageBox()
-            msg.setWindowTitle("Взлом успешен!")
-            msg.setText(self.win_message)
-            msg.exec_()
-    def initUI(self):
-        grid = QGridLayout()
-        self.setLayout(grid)
-        positions = [(r, c) for r in range(len(self.button_layout_list)) for c in range(len(self.button_layout_list[0]))]
-        for position in positions:
-            button = QPushButton(self)
-            #button.setGeometry(64, 64)
-            button.clicked.connect(self.click_button(row=position[0], col=position[1]))
-            button.setStyleSheet(f'background-image : url({self.button_layout_list[position[0]][position[1]]["image"]})')
-            grid.addWidget(button, *position)
-        
+            sg.popup_ok(self.win_message, title='Важная информация')
+    
+    def main(self):
+        pos_list = [f'{r}:{c}' for r in range(len(self.button_layout_list)) for c in range(len(self.button_layout_list[0]))]
+        sg_layout = self.generate_sg_layout()
+        window = sg.Window('Интерфейс взлома', sg_layout)
+        while True:
+            event, values = window.read()
+            if event in (None, 'Exit'):
+                break
+            for pos in pos_list:
+                if event == pos:
+                    row = int(pos[0])
+                    col = int(pos[2])
+                    self.click_button(row=row, col=col)
+                    print(f'button {row} {col} clicked')
+                    #sg_layout = self.generate_sg_layout()
+                    window[event].update(image_filename=self.button_layout_list[row][col]['image'])
+        self.window.Close()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = PipeWindow()
-    window.show()
-    sys.exit(app.exec_())
+pw = PipeWindow()
+pw.main()

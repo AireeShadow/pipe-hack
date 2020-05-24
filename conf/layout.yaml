@@ -58,11 +58,11 @@
   - type: three
     image: 'pic/three_north_west_east.png'
     locations:
-    - direction: north
-      connected: False
     - direction: west
-      connected: True
+      connected: False
     - direction: east
+      connected: True
+    - direction: north
       connected: True
   - type: corner
     image: 'pic/corner_north_west.png'
@@ -173,7 +173,7 @@
   - type: straight
     image: 'pic/straight_west_east.png'
     locations:
-    - direction: north
+    - direction: west
       connected: False
     - direction: east
       connected: False
